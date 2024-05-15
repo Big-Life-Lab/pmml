@@ -169,7 +169,7 @@ recode_to_pmml <- function(var_details_sheet, vars_sheet, db_name, vars_to_conve
     for (custom_function_file_index in seq_len(length(custom_function_files))) {
       # Convert the current one to a PMML string and parse it using the XML library
       custom_function_file_pmml_string <-
-        RToPmml::get_pmml_string_from_r_file(custom_function_files[custom_function_file_index],
+        get_pmml_string_from_r_file(custom_function_files[custom_function_file_index],
                                           src_file = TRUE)
       custom_function_file_pmml <-
         XML::xmlTreeParse(custom_function_file_pmml_string)

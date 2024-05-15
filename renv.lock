@@ -36,14 +36,6 @@
       ],
       "Hash": "470851b6d5d0ac559e9d01bb352b4021"
     },
-    "RToPmml": {
-      "Package": "RToPmml",
-      "Version": "0.1.0",
-      "Source": "Local",
-      "RemoteType": "local",
-      "RemoteUrl": "../local-transformations-generator",
-      "Hash": "0ebc808e9283eac768f762006a960f72"
-    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.12",
