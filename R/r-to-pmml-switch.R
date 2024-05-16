@@ -1,5 +1,3 @@
-library(magrittr)
-
 #' Converts a switch statement into its corresponding PMML
 #' 
 #' @param expr A data.frame with the expr node that holds the switch statement

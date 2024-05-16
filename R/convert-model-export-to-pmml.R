@@ -1,5 +1,6 @@
 #' Converts the CSv files that are part of a model export into PMML
 #'
+#' @importFrom magrittr %>%
 #' @param model_export_file_path string The absolute or relative path to the
 #' model export file. If relative, the path should relative to the working
 #' directory of the project
