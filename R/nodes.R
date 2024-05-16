@@ -448,7 +448,12 @@ attach_apply_nodes <-
       # Check to make sure the function for this derived variable is
       # in the list of parsed custom functions. If it is not, throw an
       # error
-      if(!derived_var_function_name %in% custom_function_names) {
+      # These are the R functions that are natively supported by our PMML engine 
+      # meaning that if a derived variable uses it we should not throw an 
+      # exception
+      supported_functions <- c('sum')
+      if(!derived_var_function_name %in% custom_function_names & 
+         !derived_var_function_name %in% supported_functions) {
         derived_var_name <- all_var_details_rows[1, pkg.env$columns.Variable]
         stop(paste("No custom function found for derved variable", derived_var_name, "with name", derived_var_function_name))
       }
