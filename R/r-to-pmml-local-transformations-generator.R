@@ -216,7 +216,6 @@ mutate_relevant_variables <- function(variable_name, tokens, mutated_variables) 
 
 # mutated_variables - Keeps track of all the variables and the number of times they have been mutated. Each row is the name of the variable and every row has one column called mutation iteration which is the number of times this variable has been mutated. When function is called for the first time should not be passed in
 # evaluated_variables - A HashMap that maps the variable name from each line of code to it's evaluated value
-#' @export
 get_pmml_string_from_r_file <- function(file_path, src_file=FALSE, mutated_variables = data.frame(), evaluated_variables = new.env(hash = TRUE), out_to_file = TRUE, log = TRUE) {
   if(src_file) {
     # Create directory where we store temperoray files during the addin operation

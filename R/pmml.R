@@ -61,8 +61,6 @@
 #' db_name,
 #' vars
 #' )
-#'
-#' @export
 recode_to_pmml <- function(var_details_sheet, vars_sheet, db_name, vars_to_convert = NULL, custom_function_files = NULL, table_paths = list()) {
   doc <- XML::xmlNode(pkg.env$node_name.pmml, namespaceDefinitions=c(pkg.env$node_namespace.pmml), attrs=c(version=pkg.env$node_attr.pmml_version))
   dict <- XML::xmlNode(pkg.env$node_name.data_dict)
@@ -277,7 +275,6 @@ derived_var_regex <- "DerivedVar::\\[(.+?)\\]|DerivedVar::\\[\\]"
 #' @param variable_details_row data.frame One row from a variable details sheet
 #'
 #' @return boolean True if it is a derived variable, false otherwise
-#' @export
 #'
 #' @examples
 is_derived_var <- function(variable_details_row) {
@@ -294,7 +291,6 @@ is_derived_var <- function(variable_details_row) {
 #' variables details sheet
 #'
 #' @return vector of strings Contains the names of the derived from variables
-#' @export
 #'
 #' @examples
 get_all_start_vars <-

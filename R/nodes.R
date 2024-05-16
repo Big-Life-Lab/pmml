@@ -207,7 +207,6 @@ attach_range_value_nodes <- function(var_details_row, data_field) {
 #' parsed from custom function files.
 #' @param table_names vector of strings. The list of tables part of this PMML
 #' @return TransformationDictionary node.
-#' @export
 build_trans_dict <-
   function(vars_sheet,
            var_details_sheet,
@@ -760,7 +759,6 @@ build_missing_const_node <- function (var_details_row) {
 #' @param value The variable whose value we need the dataType attribute for
 #'
 #' @return string The valye of the dataType attribute
-#' @export
 #'
 #' @examples
 get_data_type <- function(value) {
@@ -782,8 +780,6 @@ get_data_type <- function(value) {
 #'
 #' @return list Contains the PMML node which can be either a Constant or
 #' FieldRef node
-#'
-#' @export
 #'
 #' @examples
 build_node_for_rec_to <- function(var_details_row, db_name) {

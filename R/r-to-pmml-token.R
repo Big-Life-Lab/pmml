@@ -6,7 +6,6 @@
 #' @param token
 #'
 #' @return boolean
-#' @export
 #'
 #' @examples
 token_is_na <- function(token) {
