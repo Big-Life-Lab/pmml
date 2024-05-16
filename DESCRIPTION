@@ -10,6 +10,10 @@ Authors@R: c(
 Depends:
   R (>= 3.2),
 Imports: 
+  DT (== 0.33),
+  glue (== 1.7.0),
+  XML (== 3.99-0.16.1),
+  magrittr (== 2.0.3)
 Suggests:
 URL: https://github.com/Big-Life-Lab/pmml 
 BugReports: https://github.com/Big-Life-Lab/pmml/issues
