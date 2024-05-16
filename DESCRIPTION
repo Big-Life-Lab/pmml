@@ -6,7 +6,7 @@ Version: 0.1.0
 Date: 2024-05-15 
 Authors@R: c(
   person(given = "Yulric", family = "Sequeira",
-    email = "ysequeira@ohri.ca", role = c("cre"))),
+    email = "ysequeira@ohri.ca", role = c("cre")))
 Depends:
   R (>= 3.2),
 Imports: 
