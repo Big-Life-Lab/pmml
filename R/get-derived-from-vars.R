@@ -12,7 +12,6 @@
 #'  * variable: Represents the name of a variable
 #'  * constant: Represents a constant for example a string
 #'  * table: Represents the name of a reference table
-#' @export
 #'
 #' @examples
 get_derived_from_vars <-
