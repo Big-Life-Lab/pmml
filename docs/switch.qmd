@@ -62,13 +62,13 @@ The equivalent PMML code would be,
 ```{xml}
 <Apply function="if">
     <Apply function="equal">
-        <DataField name="a"/>
+        <FieldRef field="a"/>
         <Constant dataType="string">1</Constant>
     </Apply>
     <Constant dataType="string">a</Constant>
     <Apply function="if">
         <Apply function="equal">
-            <DataField name="a"/>
+            <FieldRef field="a"/>
             <Constant dataType="string">2</Constant>
         </Apply>
         <Constant dataType="string">b</Constant>
@@ -94,7 +94,7 @@ The equivalent PMML code is below,
 ```{xml}
 <Apply function="if">
     <Apply function="equal">
-        <DataField name="a"/>
+        <FieldRef field="a"/>
         <Constant dataType="string">1</Constant>    
     </Apply>
     <Apply function="when_one"></Apply>    
@@ -120,13 +120,13 @@ The PMML for the above piece of code is shown below,
 ```{xml}
 <Apply function="if">
     <Apply function="equal">
-        <DataField name="a"/>
+        <FieldRef field="a"/>
         <Constant dataType="string">1</Constant>    
     </Apply>
     <Constant dataType="string">a</Constant>
     <Apply function="if">
         <Apply function="equal">
-            <DataField name="a"/>
+            <FieldRef field="a"/>
             <Constant dataType="string">2</Constant>    
         </Apply>
         <Constant dataType="string">b</Constant>
@@ -160,12 +160,12 @@ nodes. An example of the hack is shown below,
 
 ```{xml}
 <!-- Function which contains the expression b <- 1 -->
-<DefineFunction name="switch_1_b">
+<DefineFunction field="switch_1_b">
     <Constant dataType="double">1</Constant>
 </DefineFunction>
 
 <!-- Function which contains the expression calc_result(b) -->
-<DefineFunction name="switch_1_result">
+<DefineFunction field="switch_1_result">
     <Apply function="calc_result">
         <Apply function="switch_1_b" />
     </Apply>
@@ -174,7 +174,7 @@ nodes. An example of the hack is shown below,
 <!-- The switch statment -->
 <Apply function="if">
     <Apply function="equal">
-        <DataField name="a"/>
+        <FieldRef field="a"/>
         <Constant dataType="string">1</Constant>
     </Apply>
     <Apply function="switch_1_result"/>

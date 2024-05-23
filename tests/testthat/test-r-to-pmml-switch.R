@@ -16,13 +16,13 @@ test_that("Switch statement with simple expressions", {
         <DerivedField name="test" optype="continuous">
             <Apply function="if">
                 <Apply function="equal">
-                    <DataField name="a"/>
+                    <FieldRef field="a"/>
                     <Constant dataType="string">1</Constant>
                 </Apply>
                 <Constant dataType="string">a</Constant>
                 <Apply function="if">
                     <Apply function="equal">
-                        <DataField name="a"/>
+                        <FieldRef field="a"/>
                         <Constant dataType="string">2</Constant>
                     </Apply>
                     <Constant dataType="string">b</Constant>
@@ -50,7 +50,7 @@ test_that("Switch statement with complex expressions", {
         <DerivedField name="test" optype="continuous">
             <Apply function="if">
                 <Apply function="equal">
-                    <DataField name="a"/>
+                    <FieldRef field="a"/>
                     <Constant dataType="string">1</Constant>    
                 </Apply>
                 <Apply function="when_one"></Apply>    
@@ -77,13 +77,13 @@ test_that("Switch statement with no default expression", {
         <DerivedField name="test" optype="continuous">
             <Apply function="if">
                 <Apply function="equal">
-                    <DataField name="a"/>
+                    <FieldRef field="a"/>
                     <Constant dataType="string">1</Constant>    
                 </Apply>
                 <Constant dataType="string">a</Constant>
                 <Apply function="if">
                     <Apply function="equal">
-                        <DataField name="a"/>
+                        <FieldRef field="a"/>
                         <Constant dataType="string">2</Constant>    
                     </Apply>
                     <Constant dataType="string">b</Constant>

@@ -114,7 +114,7 @@ convert_switch_statement_to_pmml <- function(
             )
             condition_pmml <- glue::glue('
                 <Apply function="equal">
-                    <DataField name="{switch_variable_name}"/>
+                    <FieldRef field="{switch_variable_name}"/>
                         {get_pmml_string_for_constant(case_nodes[1, ])} 
                 </Apply>
                 {get_pmml_str_for_expr(
