@@ -1,4 +1,11 @@
 expect_xml_equal <- function(test_dir, db_name, custom_function_files = NULL) {
+    local_mocked_bindings(
+        packageVersion = function(package_name) {
+            return('0.1.0')
+        },
+        .package = 'utils'
+    )
+
   actual_pmml <- convert_model_export_to_pmml(
     test_dir,
     paste(test_dir, "model-export.csv", sep = ""),
