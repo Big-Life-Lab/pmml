@@ -119,7 +119,7 @@ convert_model_export_to_pmml <-
       XML::addChildren(header,
                        XML::xmlNode(
                          pkg.env$PMML.Node.Application,
-                         attrs = c(name = "pmml", version = as.character(packageVersion("pmml")))
+                         attrs = c(name = "pmml", version = as.character(utils::packageVersion("pmml")))
                        ))
     doc <- XML::addChildren(doc, header)
     working_pmml <- doc
