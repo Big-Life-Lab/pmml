@@ -88,3 +88,51 @@ a <- function(table) {
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("When multiple expressions are present within a function call and 
+          the non-first expression is a data frame access code that uses a 
+          table from earlier in the function, the TableLocator node is 
+          correctly set.", {
+    code <- '
+        func <- function(table) {
+           var_one <- table[table$a == 1, ] 
+           var_two <- var_one[var_one$b == 1, ]$c
+           var_three <- var_two + 1
+        }
+    '
+
+    expected_pmml <- '<PMML>
+        <LocalTransformations>
+            <DefineFunction name="func(var_one)">
+                <ParameterField name="table" dataType="double" />
+                <MapValues>
+                   <FieldColumnPair column="a" constant="1" />
+                   <TableLocator location="local" name="table" />
+                </MapValues>
+            </DefineFunction>
+            <DefineFunction name="func(var_two)">
+                <ParameterField name="table" dataType="double" />
+                <MapValues outputColumn="c">
+                   <FieldColumnPair column="b" constant="1" />
+                    <TableLocator>
+                   <Apply function="func(var_one)">
+                    <FieldRef field="table" />
+                   </Apply>
+                   </TableLocator>
+                </MapValues>
+            </DefineFunction>
+           <DefineFunction name="func">
+                <ParameterField name="table" dataType="double" />
+                <Apply function="+">
+                    <Apply function="func(var_two)">
+                        <FieldRef field="table"/>
+                    </Apply>
+                    <Constant dataType="double">1</Constant>
+                </Apply>
+            </DefineFunction>
+        </LocalTransformations>
+    </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+
+})
