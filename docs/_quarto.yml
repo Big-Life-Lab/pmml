@@ -1,0 +1,21 @@
+project:
+  type: website
+  output-dir: ../dist
+
+website:
+  title: R to PMML Docs
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - section: High Level Specifications
+        contents:
+          - tables.qmd
+          - switch.qmd
+      - section: Technical Specifications
+        contents:
+          - get-pmml-string-from-r-file.qmd
+format:
+  html:
+    theme: cosmo
+    toc: true
