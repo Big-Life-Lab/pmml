@@ -2,7 +2,7 @@ Package: pmml
 Type: Package
 Title: Converts a set of model parameter files into a PMML file 
 Description: 
-Version: 1.0.0 
+Version: 1.0.1 
 Date: 2024-05-15 
 Authors@R: c(
   person(given = "Yulric", family = "Sequeira",
