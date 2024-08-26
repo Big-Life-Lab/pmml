@@ -110,3 +110,24 @@ test_that("No return statement function are correctly generated", {
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("Function with parameters and parameter closing brace on new line", {
+  code <- '
+    a <- function(arg_one
+    ) {
+      b <- 1
+    }
+  '
+
+  expected_pmml <- '
+<PMML>
+  <LocalTransformations>
+    <DefineFunction name="a">
+      <ParameterField name="arg_one" dataType="double" />
+      <Constant dataType="double">1</Constant>
+    </DefineFunction>
+  </LocalTransformations>
+</PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
