@@ -57,13 +57,23 @@ test_utils_run_generate_pmml_test <- function(code,
   setwd(code_dir)
   if (!is.null(expected_pmml)) {
       formatted_expected_pmml <- prettify_xml(expected_pmml)
-      formatted_actual_pmml <- prettify_xml(get_pmml_string_from_r_file(
-        code_file_path,
-        src_file = TRUE,
-        log = FALSE
-      ))
-
-      expect_equal(formatted_actual_pmml, formatted_expected_pmml)
+      formatted_actual_pmml <- NULL
+      tryCatch(
+        {
+          formatted_actual_pmml <- get_pmml_string_from_r_file(
+            code_file_path,
+            src_file = TRUE,
+            log = FALSE
+          )
+        },
+        error = function(err) {
+          stop(err)
+        }
+      )
+      expect_equal(
+        prettify_xml(formatted_actual_pmml),
+        formatted_expected_pmml
+      )
   }
   else if(!is.null(expected_error)) {
       expect_error(
