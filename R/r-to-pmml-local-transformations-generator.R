@@ -33,7 +33,13 @@ get_r_arguments_into_function_string <- function(original_function_arg_tokens) {
   return(r_arguments_into_function_string)
 }
 
-get_define_function_for_default_arg_expr <- function(arg_symbol_formal, all_arg_symbol_formals, tokens, func_name, function_param_tokens) {
+get_define_function_for_default_arg_expr <- function(
+  arg_symbol_formal,
+  all_arg_symbol_formals,
+  tokens,
+  func_name,
+  function_param_tokens
+) {
   possible_eq_formals_token <- get_token_with_id(arg_symbol_formal$id+1, tokens)
   does_arg_have_default_value <- ifelse(
     nrow(possible_eq_formals_token) != 0,
