@@ -128,7 +128,11 @@ convert_model_export_to_pmml <-
     max_time <- 0
     # Vector containing all matching variable start variables based on database name
     all_start_vars <- c()
-    if (pkg.env$variables.Time %in% variable_details[[pkg.env$argument.Variables]]) {
+    if('fine-and-gray' %in% model_steps$step) {
+      if (!pkg.env$variables.Time %in%
+          variable_details[[pkg.env$argument.Variables]]) {
+        stop('Missing time variable in variable_details sheet for fine and gray model')
+      }
       variable_details_time_rows <- variable_details[variable_details[[pkg.env$argument.Variables]] == pkg.env$variables.Time, ]
       
       max_time <-

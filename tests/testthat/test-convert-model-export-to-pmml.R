@@ -143,3 +143,39 @@ describe("Interpolating values in the centerValue column", {
     )
   })
 })
+
+test_that("When parsing a cox or fine and grey model, it should stop if the
+          time variable is missing from the variable details sheet", {
+  model_export_file <- data.frame(
+    fileType = c('variables', 'variable-details', 'model-steps'),
+    filePath = c('variables.csv', 'variable-details.csv', 'model-steps.csv')
+  )
+  variables_file <- data.frame(variable = c('sex'), databaseStart = c('cchs'))
+  variable_details_file <- data.frame(variable = c(''))
+  model_steps_file <- data.frame(
+    step = c('fine-and-gray', 'fine-and-gray'),
+    fileType = c('beta-coefficients', 'baseline-hazards'),
+    filePath = c('./beta-coefficients.csv', 'baseline-hazards.csv')
+  )
+  beta_coefficients_file <- data.frame(
+    variable = c(''), coefficient = c(''), type = c(''))
+  baseline_hazards_file <- data.frame(time = c(''))
+
+  test_dir <- tempdir()
+  write.csv(model_export_file, file.path(test_dir, '/model-export.csv'))
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(variable_details_file, file.path(test_dir, '/variable-details.csv'))
+  write.csv(model_steps_file, file.path(test_dir, '/model-steps.csv'))
+  write.csv(beta_coefficients_file, file.path(test_dir, '/beta-coefficients.csv'))
+  write.csv(baseline_hazards_file, file.path(test_dir, '/baseline-hazards.csv'))
+
+  expect_error(
+    convert_model_export_to_pmml(
+      test_dir,
+      file.path(test_dir, '/model-export.csv'),
+      database_name = 'db_one',
+      custom_function_files = c()
+    ),
+    'Missing time variable'
+  )
+})
