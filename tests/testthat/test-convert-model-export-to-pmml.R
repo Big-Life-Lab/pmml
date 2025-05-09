@@ -179,3 +179,42 @@ test_that("When parsing a cox or fine and grey model, it should stop if the
     'Missing time variable'
   )
 })
+
+test_that("When converting a variable, if there's a start variable with the same
+          name it should throw an error", {
+  model_exports_file <- data.frame(
+    fileType = c('variables', 'variable-details', 'model-steps'),
+    filePath = c('./variables.csv', 'variable-details.csv', 'model-steps.csv')
+  )
+  variables_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+  variable_details_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+  model_steps_file <- data.frame(step = c("dummy"), fileType = c("N/A"), filePath = c("./dummy.csv"))
+  dummy_file <- data.frame(origVarible = c(""), catValue = c(""), dummyVarible = c(""))
+
+  test_dir <- tempdir()
+  write.csv(model_exports_file, file.path(test_dir, '/model-export.csv'))
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(variable_details_file, file.path(test_dir, '/variable-details.csv')) 
+  write.csv(model_steps_file, file.path(test_dir, '/model-steps.csv'), row.names = FALSE)
+  write.csv(dummy_file, file.path(test_dir, './dummy.csv'))
+
+  expect_error(
+    convert_model_export_to_pmml(
+      test_dir,
+      file.path(test_dir, '/model-export.csv'),
+      database_name = 'cchs'
+    ),
+    .get_same_var_and_start_var_err_msg(
+      "age",
+      1
+    )
+  )
+})
