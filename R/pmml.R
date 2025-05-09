@@ -199,6 +199,13 @@ recode_to_pmml <- function(var_details_sheet, vars_sheet, db_name, vars_to_conve
         var_start_name <-
           get_start_var_name(var_db_details_rows[1, ], db_name)
 
+        if(var_start_name == var_to_convert) {
+          stop(.get_same_var_and_start_var_err_msg(
+            var_to_convert,
+            row.names(var_db_details_rows[1,])
+          ))
+        }
+
         # If the start variable for thie current variable is in the
         # variables columns then it needs to be added as a DerivedVariable
         # and not as a DataField.
@@ -372,3 +379,23 @@ get_all_start_vars <-
     # 3. Return the vector of derived from variables removing all duplicates
     return(unique(all_start_vars))
   }
+
+#' Returns the error message to use when a variable is derived from itself
+#' i.e. when the start variable is the same as the variable itself
+#'
+#' @param var The name of the offending variable
+#' @param variable_details_row_index The index of the offending variable details
+#' row
+#' @returns The error message
+.get_same_var_and_start_var_err_msg <- function(
+  var,
+  variable_details_row_index
+) {
+  return(glue::glue(
+    "Found a variable that is derived from itself. This usually happens",
+    "because the name of the start variable is the same as the name of the",
+    "variable. The name of the offending variable is {var}. The index of the",
+    "offending row in the variable details sheet is",
+    "{variable_details_row_index}"
+  ))
+}
