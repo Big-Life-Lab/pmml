@@ -15,6 +15,7 @@ Imports:
   XML (== 3.99-0.16.1),
   magrittr (== 2.0.3)
 Suggests:
+  devtools (== 2.4.5)
 URL: https://github.com/Big-Life-Lab/pmml 
 BugReports: https://github.com/Big-Life-Lab/pmml/issues
 Maintainer: Yulric Sequeira <ysequeira@ohri.ca>
