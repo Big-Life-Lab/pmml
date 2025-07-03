@@ -218,3 +218,75 @@ test_that("When converting a variable, if there's a start variable with the same
     )
   )
 })
+
+test_that("When an entry for a model steps file is missing from the model
+          exports file, it should throw an error", {
+  model_exports_file <- data.frame(
+    fileType = c('variables', 'variable-details'),
+    filePath = c('./variables.csv', './variable-details.csv')
+  )
+  variables_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+  variable_details_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+
+  test_dir <- tempdir()
+  model_export_path <- file.path(test_dir, '/model-export.csv')
+  write.csv(model_exports_file, model_export_path)
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(variable_details_file, file.path(test_dir, '/variable-details.csv'))
+
+  expect_error(
+    convert_model_export_to_pmml(
+      test_dir,
+      model_export_path,
+      database_name = 'cchs'
+    ),
+    paste("The model exports file at path", model_export_path,
+          "is missing an entry for a model steps file. The following file types",
+          "were found in the model exports file variables, variable-details"),
+    fixed = TRUE
+  )
+})
+
+test_that("When the model steps file cannot be found at the provided path,
+          it should throw an error", {
+  model_exports_file <- data.frame(
+    fileType = c('variables', 'variable-details', 'model-steps'),
+    filePath = c(
+      './variables.csv', './variable-details.csv', 'non-existent.csv'
+    )
+  )
+  variables_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+  variable_details_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::age')
+  )
+
+  test_dir <- tempdir()
+  model_export_path <- file.path(test_dir, '/model-export.csv')
+  write.csv(model_exports_file, model_export_path)
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(variable_details_file, file.path(test_dir, '/variable-details.csv'))
+
+  model_steps_path <- file.path(test_dir, 'non-existent.csv')
+  expect_error(
+    convert_model_export_to_pmml(
+      test_dir,
+      model_export_path,
+      database_name = 'cchs'
+    ),
+    paste("The model steps file was not found at path", model_steps_path)
+  )
+})

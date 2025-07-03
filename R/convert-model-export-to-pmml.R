@@ -32,11 +32,24 @@ convert_model_export_to_pmml <-
     variable_details_path <-
       file.path(dirname(model_export_file_path), variable_details_path)
     
-    model_steps_path <-
-      model_export[model_export$fileType == pkg.env$ModelExportCSV.model_steps, pkg.env$ModelStepsCSV.filePath]
-    model_steps_path <-
-      file.path(dirname(model_export_file_path), model_steps_path)
-    
+    model_steps_rows <- model_export[
+      model_export$fileType == pkg.env$ModelExportCSV.model_steps, ]
+    if (nrow(model_steps_rows) == 0) {
+      found_file_types <- paste(model_export$fileType, collapse = ", ")
+      stop(paste("The model exports file at path", model_export_file_path,
+                 "is missing an entry for a model steps file. The following",
+                 "file types were found in the model exports file",
+                 found_file_types))
+    }
+
+    model_steps_path <- file.path(
+      dirname(model_export_file_path),
+      model_steps_rows[1,][[pkg.env$ModelStepsCSV.filePath]]
+    )
+    if (!file.exists(model_steps_path)) {
+      stop(paste("The model steps file was not found at path", model_steps_path))
+    }
+
     # Read in variables and variable-details saving them to appropriate variables
     variables <-
       read.csv(variables_path,
