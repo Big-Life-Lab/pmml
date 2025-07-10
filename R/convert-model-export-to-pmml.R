@@ -55,6 +55,18 @@ convert_model_export_to_pmml <-
       read.csv(variables_path,
                fileEncoding = "UTF-8-BOM",
                stringsAsFactors = FALSE)
+
+    if(!.has_database(database_name, variables)) {
+      all_dbs <- .get_all_databases(variables)
+      cli::cli_abort(c(
+        "No variables found for database {database_name}",
+        "i" = "The {.var database_name} parameter should be one of the
+               databases in the variables sheet",
+        "i" = "Found the following databases in the variable sheet
+               {all_dbs}"
+      ))
+    }
+
     variable_details <-
       read.csv(variable_details_path,
                fileEncoding = "UTF-8-BOM",
@@ -1097,3 +1109,29 @@ convert_step <-
     
     return(working_pmml)
   }
+
+#' Check if a database is present in a variables sheet
+#'
+#' @param db a string containing the name of the database to check
+#' @param variables_sheet a data.frame containing the variables sheet to check
+#' in
+#' @returns a boolean
+.has_database <- function(db, variables_sheet) {
+  if(!db %in% .get_all_databases(variables_sheet)) {
+    return(FALSE)
+  }
+  return(TRUE)
+}
+
+#' Gets the names of all the databases in a variables sheet
+#'
+#' @param variables_sheet a data.frame containing the variables sheet
+#' @returns a character vector containing the names of all the databases
+.get_all_databases <- function(variables_sheet) {
+  all_dbs <- variables_sheet[[pkg.env$columns.DatabaseStart]] %>%
+      strsplit(",") %>%
+      unlist %>%
+      unique
+  return(all_dbs)
+}
+
