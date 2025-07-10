@@ -150,8 +150,21 @@ test_that("When parsing a cox or fine and grey model, it should stop if the
     fileType = c('variables', 'variable-details', 'model-steps'),
     filePath = c('variables.csv', 'variable-details.csv', 'model-steps.csv')
   )
-  variables_file <- data.frame(variable = c('sex'), databaseStart = c('cchs'))
-  variable_details_file <- data.frame(variable = c(''))
+  variables_file <- data.frame(
+    variable = c('sex'),
+    databaseStart = c('cchs'),
+    variableType = c('Categorical')
+  )
+  variable_details_file <- data.frame(
+    variable = c('sex'),
+    databaseStart = c('cchs'),
+    variableStart = c('cchs::SEX'),
+    typeStart = c('cat'),
+    variableStartShortLabel = c('sex'),
+    recStart = c('male'),
+    recEnd = c('1'),
+    catStartLabel = c('male')
+  )
   model_steps_file <- data.frame(
     step = c('fine-and-gray', 'fine-and-gray'),
     fileType = c('beta-coefficients', 'baseline-hazards'),
@@ -173,7 +186,7 @@ test_that("When parsing a cox or fine and grey model, it should stop if the
     convert_model_export_to_pmml(
       test_dir,
       file.path(test_dir, '/model-export.csv'),
-      database_name = 'db_one',
+      database_name = 'cchs',
       custom_function_files = c()
     ),
     'Missing time variable'
@@ -288,5 +301,33 @@ test_that("When the model steps file cannot be found at the provided path,
       database_name = 'cchs'
     ),
     paste("The model steps file was not found at path", model_steps_path)
+  )
+})
+
+test_that("When no variables are found for the specified database name,
+          it should throw an error", {
+  model_exports_file <- data.frame(
+    fileType = c('variables', 'model-steps'),
+    filePath = c('./variables.csv', './model-steps.csv')
+  )
+  variables_file <- data.frame(
+    variable = c('age'),
+    databaseStart = c('cchs')
+  )
+  model_steps_file <- data.frame()
+
+  test_dir <- tempdir()
+  write.csv(model_exports_file, file.path(test_dir, '/model-export.csv'))
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(model_steps_file, file.path(test_dir, '/model-steps.csv'))
+
+  expect_error(
+    convert_model_export_to_pmml(
+      test_dir,
+      file.path(test_dir, '/model-export.csv'),
+      database_name = 'nonexistent_db',
+      custom_function_files = c()
+    ),
+    'No variables found for database nonexistent_db'
   )
 })
