@@ -136,3 +136,39 @@ test_that("When multiple expressions are present within a function call and
   test_utils_run_generate_pmml_test(code, expected_pmml)
 
 })
+
+test_that("Data frame code within an else expressions works", {
+  code <- '
+    a <- function(b, table) {
+     if(b == 1) {
+       return(1)
+     }
+     else {
+      return(table[table$c == b, ]$d)
+     }
+}
+'
+
+  expected_pmml <- '<PMML>
+<LocalTransformations>
+  <DefineFunction name="a">
+    <ParameterField name="b" dataType="double"/>
+    <ParameterField name="table" dataType="double"/>
+    <Apply function="if">
+      <Apply function="equal">
+        <FieldRef field="b"/>
+        <Constant dataType="double">1</Constant>
+      </Apply>
+      <Constant dataType="double">1</Constant>
+      <MapValues outputColumn="d">
+        <FieldColumnPair column="c" field="b"/>
+        <TableLocator location="local" name="table"/>
+      </MapValues>
+    </Apply>
+  </DefineFunction>
+</LocalTransformations>
+</PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
+

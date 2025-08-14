@@ -29,10 +29,18 @@ define_function_get_pmml_string <- function(tokens, function_name) {
 
   pmml_function_string <- ''
 
+  function_scope_variables <- c(function_param_name_tokens$text)
+
   defaulted_args <- data.frame()
   if(nrow(function_param_name_tokens) != 0) {
     for(i in 1:nrow(function_param_name_tokens)) {
-      default_function_pmml_string_for_current_arg <- get_define_function_for_default_arg_expr(function_param_name_tokens[i, ], function_param_name_tokens, tokens)
+      default_function_pmml_string_for_current_arg <- 
+        get_define_function_for_default_arg_expr(
+          function_param_name_tokens[i, ],
+          function_param_name_tokens,
+          tokens,
+          function_scope_variables
+        )
 
       if(default_function_pmml_string_for_current_arg != '') {
         if(function_param_name_tokens[i, "text"] %in% row_args) {
@@ -239,7 +247,8 @@ get_pmml_str_for_if_expr <-
           tokens,
           orig_func_name,
           orig_func_param_tokens,
-          is_last_expr
+          is_last_expr,
+          function_scope_variables
         )
 
         if(is.na(cur_cond_expr_mapping$cond_expr_id) == FALSE) {
@@ -308,7 +317,14 @@ get_pmml_str_for_if_expr <-
           function_scope_variables
         )
       } else {
-        expr_pmml_str <- define_function_get_pmml_str_for_token(expr_token_to_run, tokens, orig_func_name, orig_func_param_tokens, is_last_expr)
+        expr_pmml_str <- define_function_get_pmml_str_for_token(
+          expr_token_to_run,
+          tokens,
+          orig_func_name,
+          orig_func_param_tokens,
+          is_last_expr,
+          function_scope_variables
+        )
       }
 
       if(is.na(current_mapping$cond_expr_id) == FALSE) {
@@ -335,14 +351,22 @@ define_function_get_pmml_str_for_expr <- function(
       get_pmml_str_for_row_access,
       function() {return("")},
       function(cond_expr_id_to_block_expr_ids_mappings) {
-        return(get_pmml_str_for_if_expr(cond_expr_id_to_block_expr_ids_mappings, tokens, orig_func_name, orig_func_param_tokens, is_last_expr, function_scope_variables))
+        return(get_pmml_str_for_if_expr(
+          cond_expr_id_to_block_expr_ids_mappings,
+          tokens,
+          orig_func_name,
+          orig_func_param_tokens,
+          is_last_expr,
+          function_scope_variables
+        ))
       }
     )(expr, tokens, function_scope_variables)
   )
 }
 
 define_function_get_pmml_str_for_token <- function(
-  token, tokens, orig_func_name, orig_func_param_tokens, is_last_expr
+  token, tokens, orig_func_name, orig_func_param_tokens, is_last_expr,
+  function_scope_variables
 ) {
   get_pmml_str_for_token <- pmml_generic_get_pmml_str_for_token(define_function_get_pmml_str_for_expr)
 
@@ -353,7 +377,8 @@ define_function_get_pmml_str_for_token <- function(
     list(),
     orig_func_name,
     orig_func_param_tokens,
-    is_last_expr
+    is_last_expr,
+    function_scope_variables = function_scope_variables
   ))
 }
 
