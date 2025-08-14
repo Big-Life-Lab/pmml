@@ -341,10 +341,20 @@ define_function_get_pmml_str_for_expr <- function(
   )
 }
 
-define_function_get_pmml_str_for_token <- function(token, tokens, orig_func_name, orig_func_param_tokens, is_last_expr) {
+define_function_get_pmml_str_for_token <- function(
+  token, tokens, orig_func_name, orig_func_param_tokens, is_last_expr
+) {
   get_pmml_str_for_token <- pmml_generic_get_pmml_str_for_token(define_function_get_pmml_str_for_expr)
 
-  return(get_pmml_str_for_token(token, tokens, tokens_create_empty_tokens_df(), list(),  orig_func_name, orig_func_param_tokens, is_last_expr))
+  return(get_pmml_str_for_token(
+    token,
+    tokens,
+    tokens_create_empty_tokens_df(),
+    list(),
+    orig_func_name,
+    orig_func_param_tokens,
+    is_last_expr
+  ))
 }
 
 get_pmml_string_for_expr_token_within_function <- 
@@ -358,7 +368,15 @@ get_pmml_string_for_expr_token_within_function <-
              ) {
   pmml_string_for_initialization_expr_token <- ''
   if(if_expr_is(inner_function_expr_token, tokens)) {
-    pmml_string_for_initialization_expr_token <- define_function_get_pmml_str_for_expr(inner_function_expr_token, tokens, original_function_name, original_function_arg_tokens, FALSE, function_scope_variables)
+    pmml_string_for_initialization_expr_token <- 
+      define_function_get_pmml_str_for_expr(
+        inner_function_expr_token,
+        tokens,
+        original_function_name,
+        original_function_arg_tokens,
+        FALSE,
+        function_scope_variables
+      )
   } else {
     #Get the expression token which has the initialization code
     initialization_expr_token <- get_token_with_assignment_code(get_child_tokens_for_parent(inner_function_expr_token, tokens))

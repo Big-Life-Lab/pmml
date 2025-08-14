@@ -310,7 +310,13 @@ get_pmml_string_from_r_file <- function(file_path, src_file=FALSE, mutated_varia
           taxonomy <- paste(taxonomy, return_values[1], sep = '')
         }
         else if(does_tokens_have_function_definition(tokens_for_current_parent_index) == TRUE) {
-          local_transformation_string <- paste(local_transformation_string, define_function_get_pmml_string(tokens_for_current_parent_index, mutated_variable_name), sep='')
+          local_transformation_string <- paste(
+            local_transformation_string,
+            define_function_get_pmml_string(
+              tokens_for_current_parent_index, mutated_variable_name
+            ),
+            sep=''
+          )
         }
         else {
           assign_expr_token <- get_token_with_assignment_code(tokens_for_current_parent_index)
