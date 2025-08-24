@@ -414,9 +414,9 @@ get_pmml_string_for_expr_token_within_function <-
       pmmlStringFor_function_call_for_current_symbol <- gsub(r_function_name, get_function_name_for_inner_function_expr_token(original_function_name, symbol_name), pmmlStringFor_function_call_for_current_symbol)
 
       pmml_string_for_initialization_expr_token <- gsub(glue::glue('<FieldRef field="{symbol_name}"/>'), pmmlStringFor_function_call_for_current_symbol, pmml_string_for_initialization_expr_token)
-        
+       
       pmml_string_for_initialization_expr_token <- gsub(
-        glue::glue('<TableLocator location="taxonomy" name="{symbol_name}"/>'),
+        glue::glue('<TableLocator location="taxonomy" name="{symbol_name}" />'),
         glue::glue('<TableLocator>{pmmlStringFor_function_call_for_current_symbol}</TableLocator>'),
         pmml_string_for_initialization_expr_token
       )

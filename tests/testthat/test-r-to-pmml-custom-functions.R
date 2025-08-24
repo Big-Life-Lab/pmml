@@ -131,3 +131,43 @@ test_that("Function with parameters and parameter closing brace on new line", {
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("Function", {
+  code <- '
+    a <- function(table) {
+      row <- table[table$b == 1, ]
+      c <- row$c 
+      return(c)
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a(row)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues>
+          <FieldColumnPair column=\"b\" constant=\"1\"/>
+          <TableLocator location=\"local\" name=\"table\"/>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a(c)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues outputColumn=\"c\">
+          <TableLocator>
+            <Apply function=\"a(row)\">
+              <FieldRef field=\"table\"/>
+            </Apply>
+          </TableLocator>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"a(c)\">
+          <FieldRef field=\"table\"/>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
