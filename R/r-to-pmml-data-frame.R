@@ -62,7 +62,11 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
 
     data_frame_iterate_column_conditions(expr, tokens, function(column, field_or_constant) {
       # Make the column pmml string
-      column_string <- glue::glue('column="{column$text}"')
+      column_string <- ifelse(
+        column != "index",
+        glue::glue('column="{column$text}"'),
+        glue::glue('column="index"')
+      )
       # Make the field or constant pmml string
       field_or_constant_string <- ifelse(is_symbol_token(field_or_constant), glue::glue('field="{field_or_constant$text}"'), glue::glue('constant="{format_constant_token_text(field_or_constant)}"'))
 
@@ -118,6 +122,9 @@ data_frame_iterate_column_conditions <- function(expr, tokens, iterator) {
       field_or_constant <- tokens_to_use_for_field_column_pair_strings[i+3, ]
 
       iterator(column, field_or_constant)
+    }
+    else {
+      iterator("index", tokens_to_use_for_field_column_pair_strings[i, ])
     }
   }
 }
