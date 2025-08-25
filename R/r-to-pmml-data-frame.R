@@ -93,7 +93,13 @@ data_frame_get_table_name <- function(expr, tokens) {
     expr_token_with_table_name <- expr_child_tokens[1, ]
 
     # Get the name of the table
-    table_name <- get_child_tokens_for_parent(expr_token_with_table_name, tokens)[1, ]$text
+    token_with_table_name <- get_child_tokens_for_parent(expr_token_with_table_name, tokens)[1, ]
+    if(token_with_table_name$token == EXPR_TOKEN) {
+      table_name <- get_child_tokens_for_parent(token_with_table_name, tokens)[1, ]$text
+    }
+    else {
+      table_name <- get_child_tokens_for_parent(expr_token_with_table_name, tokens)[1, ]$text
+    }
 
     return(table_name)
   }
