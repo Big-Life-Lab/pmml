@@ -62,11 +62,12 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
 
     data_frame_iterate_column_conditions(expr, tokens, function(column, field_or_constant) {
       # Make the column pmml string
-      column_string <- ifelse(
-        column != "index",
-        glue::glue('column="{column$text}"'),
+      column_string <- if(!is.data.frame(column)) {
+        glue::glue('column="{column[1, ]$text}"')
+      } else {
         glue::glue('column="index"')
-      )
+      }
+
       # Make the field or constant pmml string
       field_or_constant_string <- ifelse(is_symbol_token(field_or_constant), glue::glue('field="{field_or_constant$text}"'), glue::glue('constant="{format_constant_token_text(field_or_constant)}"'))
 
@@ -114,23 +115,24 @@ data_frame_iterate_column_conditions <- function(expr, tokens, iterator) {
   expr_child_tokens <- get_expr_tokens(child_tokens)
 
   expr_token_with_table_entire_search_conditions <- expr_child_tokens[2, ]
-
   # Get the descendants of the expr token with table entires. It will have the information we need for the FieldColumnPairs
-  tokens_to_use_for_field_column_pair_strings <- get_descendants_of_token(expr_token_with_table_entire_search_conditions, tokens)
+  tokens_to_use_for_field_column_pair_strings <- get_descendants_of_token(
+    expr_token_with_table_entire_search_conditions, tokens)
+  if(nrow(tokens_to_use_for_field_column_pair_strings) == 1) {
+    iterator("index", tokens_to_use_for_field_column_pair_strings[1, ])
+  }
+  else {
+    # Go though the descendants
+    for(i in 1:nrow(tokens_to_use_for_field_column_pair_strings)) {
+      # If the token is op type $
+      if(tokens_to_use_for_field_column_pair_strings[i, 'token'] == "'$'") {
+        # The token  after this is the column referenced in the table
+        column <- tokens_to_use_for_field_column_pair_strings[i+1, ]
+        # The token 2 after this is the field or constant we need to compare the column to
+        field_or_constant <- tokens_to_use_for_field_column_pair_strings[i+3, ]
 
-  # Go though the descendants
-  for(i in 1:nrow(tokens_to_use_for_field_column_pair_strings)) {
-    # If the token is op type $
-    if(tokens_to_use_for_field_column_pair_strings[i, 'token'] == "'$'") {
-      # The token  after this is the column referenced in the table
-      column <- tokens_to_use_for_field_column_pair_strings[i+1, ]
-      # The token 2 after this is the field or constant we need to compare the column to
-      field_or_constant <- tokens_to_use_for_field_column_pair_strings[i+3, ]
-
-      iterator(column, field_or_constant)
-    }
-    else {
-      iterator("index", tokens_to_use_for_field_column_pair_strings[i, ])
+        iterator(column, field_or_constant)
+      }
     }
   }
 }
