@@ -62,7 +62,7 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
 
     data_frame_iterate_column_conditions(expr, tokens, function(column, field_or_constant) {
       # Make the column pmml string
-      column_string <- if(!is.data.frame(column)) {
+      column_string <- if(is.data.frame(column)) {
         glue::glue('column="{column[1, ]$text}"')
       } else {
         glue::glue('column="index"')
