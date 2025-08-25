@@ -55,7 +55,7 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
     index_column_value <- format_symbol_name(get_child_tokens_for_parent(child_tokens[3, ], tokens)[1, ])
     field_column_pair_string <- glue::glue('<FieldColumnPair column="index" constant="{index_column_value}"/>')
 
-    return(glue::glue('<MapValues outputColumn="{output_column_name}">{field_column_pair_string}<TableLocator location="{location}" name="{table_name}"/></MapValues>'))
+    return(glue::glue('<MapValues outputColumn="{output_column_name}">{field_column_pair_string}<TableLocator location="{location}" name="{table_name}" /></MapValues>'))
   } else {
     # The string which at the end of the following loop will have all the FieldColumnPairs
     field_column_pairs <- ''
@@ -74,7 +74,7 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
       field_column_pairs <<- paste(field_column_pairs, glue::glue('<FieldColumnPair {column_string} {field_or_constant_string}/>'), sep = "")
     })
 
-    return(glue::glue('{field_column_pairs}<TableLocator location="{location}" name="{table_name}"/>'))
+    return(glue::glue('{field_column_pairs}<TableLocator location="{location}" name="{table_name}" />'))
   }
 }
 
