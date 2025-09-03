@@ -135,3 +135,36 @@ col <- test(row)
   expect_false(exists("row_vars"),
                info = "row_vars has not been cleared from global environment")
 })
+
+test_that("Accessing rows within a function in the return statement where
+          the row variable has been declared in an earlier statement", {
+  code <- 'test <- function(table) {
+    table_row <- table[table$a == 1, ]
+    return(table_row$b)
+  }'
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"test(table_row)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues>
+          <FieldColumnPair column=\"a\" constant=\"1\"/>
+          <TableLocator location=\"local\" name=\"table\" />
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"test\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues outputColumn=\"b\">
+          <TableLocator>
+            <Apply function=\"test(table_row)\">
+              <FieldRef field=\"table\"/>
+            </Apply>
+          </TableLocator>
+        </MapValues>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+  test_utils_run_generate_pmml_test(
+    code,
+    expected_pmml
+  )}
+)
