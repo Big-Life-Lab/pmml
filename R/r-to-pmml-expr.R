@@ -78,7 +78,7 @@ expr_generic_get_pmml_str_for_expr <- function(
 
           # Handle c functions by taking the arguments to the functions and concating the pmml string for each argument
           if(function_name == 'c') {
-            return(get_pmml_str_for_arg_exprs(function_call_get_function_arg_expr_tokens(expr, tokens), tokens), scope_variables)
+            return(get_pmml_str_for_arg_exprs(function_call_get_function_arg_expr_tokens(expr, tokens), tokens, scope_variables))
           } else if(function_name == 'exists') {
             function_arg_expr_tokens <- function_call_get_function_arg_expr_tokens(expr, tokens)
             exits_arg <- format_constant_token_text(get_tokens_with_parent(function_arg_expr_tokens[1, 'id'], tokens)[1, ])
