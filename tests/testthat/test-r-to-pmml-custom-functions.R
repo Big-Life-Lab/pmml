@@ -171,3 +171,42 @@ test_that("Function", {
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("Custom functions with intermediate variables that use non-wildcard
+          expressions are correctly parsed", {
+  code <- '
+    a <- function(table) {
+      row <- table
+      c <- row[row$b == 1, "c"]
+      return(c)
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a(row)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <FieldRef field=\"table\"/>
+      </DefineFunction>
+      <DefineFunction name=\"a(c)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues outputColumn=\"c\">
+          <FieldColumnPair column=\"index\" constant=\"\"/>
+          <TableLocator>
+            <Apply function=\"a(row)\">
+              <FieldRef field=\"table\"/>
+            </Apply>
+          </TableLocator>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"a(c)\">
+          <FieldRef field=\"table\"/>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})

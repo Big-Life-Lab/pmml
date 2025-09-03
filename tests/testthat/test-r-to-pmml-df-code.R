@@ -215,5 +215,5 @@ test_that("Function", {
     </LocalTransformations>
   </PMML>'
 
-  test_utils_run_generate_pmml_test(code, expected_pmml, debug = TRUE)
+  test_utils_run_generate_pmml_test(code, expected_pmml)
 })
