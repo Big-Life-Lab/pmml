@@ -133,11 +133,13 @@ define_function_get_pmml_string <- function(tokens, function_name) {
             pmml_string_for_r_code,
             pmml_string_for_return_arg_expr_token
           )
-          pmml_string_for_return_arg_expr_token <- gsub(
-            glue::glue('<TableLocator location="taxonomy" name="{symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text}" />'),
-            glue::glue('<TableLocator>{pmml_string_for_r_code}</TableLocator>'),
-            pmml_string_for_return_arg_expr_token
-          )
+          if(symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text %in% function_scope_variables) {
+            pmml_string_for_return_arg_expr_token <- gsub(
+              glue::glue('<TableLocator location="taxonomy" name="{symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text}" />'),
+              glue::glue('<TableLocator>{pmml_string_for_r_code}</TableLocator>'),
+              pmml_string_for_return_arg_expr_token
+            )
+          }
         }
       }
 
