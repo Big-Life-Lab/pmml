@@ -64,7 +64,6 @@ get_define_function_for_default_arg_expr <- function(
         func_name,
         function_param_tokens,
         FALSE,
-        c(),
         function_scope_variables
       )
     } else {
