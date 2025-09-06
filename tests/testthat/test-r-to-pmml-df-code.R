@@ -136,3 +136,53 @@ test_that("When multiple expressions are present within a function call and
   test_utils_run_generate_pmml_test(code, expected_pmml)
 
 })
+
+test_that("Data frame expressions within if, elseif, and else blocks are
+          correctly parsed", {
+  code <- '
+    a <- function(b, table) {
+     if(b == 1) {
+       return(table[table$c == b, ]$d)
+     } else if(b == 2) {
+       return(table[table$c == b, ]$d)
+     } else {
+      return(table[table$c == b, ]$d)
+     }
+  }'
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"b\" dataType=\"double\"/>
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"if\">
+          <Apply function=\"equal\">
+            <FieldRef field=\"b\"/>
+            <Constant dataType=\"double\">1</Constant>
+          </Apply>
+          <MapValues outputColumn=\"d\">
+            <FieldColumnPair column=\"c\" field=\"b\"/>
+            <TableLocator location=\"local\" name=\"table\"/>
+          </MapValues>
+          <Apply function=\"if\">
+            <Apply function=\"equal\">
+              <FieldRef field=\"b\"/>
+              <Constant dataType=\"double\">2</Constant>
+            </Apply>
+            <MapValues outputColumn=\"d\">
+              <FieldColumnPair column=\"c\" field=\"b\"/>
+              <TableLocator location=\"local\" name=\"table\"/>
+            </MapValues>
+            <MapValues outputColumn=\"d\">
+              <FieldColumnPair column=\"c\" field=\"b\"/>
+              <TableLocator location=\"local\" name=\"table\"/>
+            </MapValues>
+          </Apply>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
+
