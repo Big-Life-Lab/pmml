@@ -211,3 +211,30 @@ test_that("Custom functions with intermediate variables that use non-wildcard
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("Custom functions that have a data frame expression within a function
+          call should be correctly parsed", {
+  code <- '
+    get_table_row_indexes <- function(table) {
+      return(which(table$a == 1))
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"get_table_row_indexes\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"which\">
+          <Apply function=\"equal\">
+            <MapValues outputColumn=\"a\">
+              <TableLocator location=\"local\" name=\"table\" />
+            </MapValues>
+            <Constant dataType=\"double\">1</Constant>
+          </Apply>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
