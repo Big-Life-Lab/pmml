@@ -13,10 +13,13 @@
 #'     type: **R** for R files or **CSV** for csv files
 #'     contents: string for R files or a data.frame for csv files
 #' )
+#' @param debug a boolean which when set to TRUE prints information that can
+#' be useful to debug a failing test
 test_utils_run_generate_pmml_test <- function(code, 
                                               expected_pmml = NULL,
                                               expected_error = NULL,
-                                              files = list()
+                                              files = list(),
+                                              debug = FALSE
                                               ) {
   # Creates all the files that the test needs and adds them to a test 
   # directory 
@@ -70,6 +73,9 @@ test_utils_run_generate_pmml_test <- function(code,
           stop(err)
         }
       )
+      if(debug) {
+        print(formatted_actual_pmml)
+      }
       expect_equal(
         prettify_xml(formatted_actual_pmml),
         formatted_expected_pmml
