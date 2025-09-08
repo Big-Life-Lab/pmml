@@ -70,7 +70,7 @@ data_frame_get_pmml_node <- function(expr, tokens, scope_variables) {
       field_column_pairs <<- paste(field_column_pairs, glue::glue('<FieldColumnPair {column_string} {field_or_constant_string}/>'), sep = "")
     })
 
-    return(glue::glue('{field_column_pairs}<TableLocator location="{location}" name="{table_name}"/>'))
+    return(glue::glue('{field_column_pairs}<TableLocator location="{location}" name="{table_name}" />'))
   }
 }
 
