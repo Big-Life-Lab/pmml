@@ -186,3 +186,34 @@ test_that("Data frame expressions within if, elseif, and else blocks are
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
 
+test_that("Function", {
+  code <- '
+    a <- function(table, c) {
+      b <- table[c, ]
+      return(b)
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a(b)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <ParameterField name=\"c\" dataType=\"double\"/>
+        <MapValues>
+          <FieldColumnPair column=\"index\" field=\"c\"/>
+          <TableLocator location=\"local\" name=\"table\" />
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <ParameterField name=\"c\" dataType=\"double\"/>
+        <Apply function=\"a(b)\">
+          <FieldRef field=\"table\"/>
+          <FieldRef field=\"c\"/>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml, debug = TRUE)
+})
