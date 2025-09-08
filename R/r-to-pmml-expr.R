@@ -78,7 +78,7 @@ expr_generic_get_pmml_str_for_expr <- function(
 
           # Handle c functions by taking the arguments to the functions and concating the pmml string for each argument
           if(function_name == 'c') {
-            return(get_pmml_str_for_arg_exprs(function_call_get_function_arg_expr_tokens(expr, tokens), tokens))
+            return(get_pmml_str_for_arg_exprs(function_call_get_function_arg_expr_tokens(expr, tokens), tokens, scope_variables))
           } else if(function_name == 'exists') {
             function_arg_expr_tokens <- function_call_get_function_arg_expr_tokens(expr, tokens)
             exits_arg <- format_constant_token_text(get_tokens_with_parent(function_arg_expr_tokens[1, 'id'], tokens)[1, ])
@@ -92,7 +92,7 @@ expr_generic_get_pmml_str_for_expr <- function(
             # Get the PMML string for the arguments passed into the function represented
             # by the function call expr in the func_call_expr arg
             function_arg_expr_tokens <- function_call_get_function_arg_expr_tokens(expr, tokens)
-            function_args_symbol_tokens_pmml_string <- get_pmml_str_for_arg_exprs(function_arg_expr_tokens, tokens)
+            function_args_symbol_tokens_pmml_string <- get_pmml_str_for_arg_exprs(function_arg_expr_tokens, tokens, scope_variables)
 
             # If the function that is called has parameters can be defaulted, then check whether the user
             # passed them. If they were not passed then add NA's to the end
@@ -145,12 +145,12 @@ expr_generic_get_pmml_str_for_expr <- function(
     }
   }
 
-  get_pmml_str_for_arg_exprs <- function(arg_expr_tokens, tokens) {
+  get_pmml_str_for_arg_exprs <- function(arg_expr_tokens, tokens, scope_variables) {
     function_args_symbol_tokens_pmml_string <- ''
     for(i in seq_len(nrow(arg_expr_tokens))) {
       function_args_symbol_tokens_pmml_string <- paste(
         function_args_symbol_tokens_pmml_string,
-        get_pmml_str_for_expr(arg_expr_tokens[i, ], tokens, c()),
+        get_pmml_str_for_expr(arg_expr_tokens[i, ], tokens, scope_variables),
         sep=''
       )
     }
