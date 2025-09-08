@@ -132,7 +132,8 @@ test_that("Function with parameters and parameter closing brace on new line", {
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
 
-test_that("Function", {
+test_that("Custom functions with intermediate variables that use the dollar
+          operator to access the column are correctly parsed", {
   code <- '
     a <- function(table) {
       row <- table[table$b == 1, ]
