@@ -596,8 +596,12 @@ build_single_rec_from_derived_field_apply_node <-
       XML::xmlAttrs(const_val_node) <-
         c(dataType = get_data_type(var_details_row[[pkg.env$columns.recTo]]))
 
-      XML::xmlValue(const_val_node) <-
+      XML::xmlValue(const_val_node) <- if(
+        var_details_row[[pkg.env$columns.recTo]] == pkg.env$rec_to_copy) {
+          var_details_row[[pkg.env$columns.recFrom]]
+      } else {
         var_details_row[[pkg.env$columns.recTo]]
+      }
     }
 
     apply_node <-
