@@ -331,3 +331,88 @@ test_that("When no variables are found for the specified database name,
     'No variables found for database nonexistent_db'
   )
 })
+
+test_that("Correctly converts copy value for categorical non-derived
+          variables", {
+  model_exports_file <- data.frame(
+    fileType = c('variables', 'model-steps', 'variable-details'),
+    filePath = c('./variables.csv', './model-steps.csv', './variable-details.csv')
+  )
+  variables_file <- data.frame(
+    variable = c('sex'),
+    databaseStart = c('cchs'),
+    variableType = c('Categorical')
+  )
+  variable_details_file <- data.frame(
+    variable = c('sex'),
+    databaseStart = c('cchs'),
+    typeStart = c('cat'),
+    typeEnd = c('cat'),
+    variableStart = c('cchs::Sex'),
+    recEnd = c('copy'),
+    recStart = c('A1')
+  )
+  model_steps_file <- data.frame(
+    step = c('simple-model'),
+    fileType = c(''),
+    filePath = c('./simple-model.csv')
+  )
+  simple_model_file <- data.frame(
+    columnName = c('outputVariable'),
+    columnValue = c('test')
+  )
+
+  test_dir <- tempdir()
+  write.csv(model_exports_file, file.path(test_dir, '/model-export.csv'))
+  write.csv(variables_file, file.path(test_dir, '/variables.csv'))
+  write.csv(variable_details_file, file.path(test_dir, '/variable-details.csv'))
+  write.csv(model_steps_file, file.path(test_dir, '/model-steps.csv'))
+  write.csv(simple_model_file, file.path(test_dir, '/simple-model.csv'))
+
+  actual_pmml <- convert_model_export_to_pmml(
+    test_dir,
+    file.path(test_dir, '/model-export.csv'),
+    database_name = 'cchs',
+    custom_function_files = c()
+  )
+
+  expected_pmml <- '<PMML version="4.4"
+    xmlns="http://www.dmg.org/PMML-4_4"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <DataDictionary numberOfFields="1">
+      <DataField name="Sex" optype="categorical" dataType="string">
+        <Extension name="variableStartLabel"/>
+        <Value value="A1" property="valid"/>
+      </DataField>
+    </DataDictionary>
+    <TransformationDictionary>
+      <DerivedField name="sex" optype="categorical" dataType="string">
+        <Extension name="labelLong"/>
+        <Extension name="units"/>
+        <Apply function="if">
+          <Apply function="equal">
+            <FieldRef field="Sex"/>
+            <Constant dataType="string">A1</Constant>
+          </Apply>
+          <Constant dataType="string">A1</Constant>
+          <Constant dataType="string">NA::b</Constant>
+        </Apply>
+        <Value value="NA::b" displayValue="Missing" property="missing">
+          <Extension name="catLabelLong" value="Missing"/>
+        </Value>
+      </DerivedField>
+    </TransformationDictionary>
+    <Header>
+      <Application name="pmml" version="1.0.2"/>
+    </Header>
+    <Output>
+      <OutputField name="test"/>
+    </Output>
+    <SimpleModel/>
+  </PMML>'
+
+  expect_equal(
+    prettify_xml(toString(actual_pmml)),
+    prettify_xml(expected_pmml)
+  )
+})
