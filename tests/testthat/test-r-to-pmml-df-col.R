@@ -69,7 +69,8 @@ test <- function() {
     test_utils_run_generate_pmml_test(code, expected_pmml)
 })
 
-test_that("Non-wildcard column access expressions inside functions throw an error", {
+test_that("Non-wildcard column access expressions inside functions are
+          correctly parsed", {
     code <- '
     test <- function() {
   a <- table["b", "c"]

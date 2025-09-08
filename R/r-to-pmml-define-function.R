@@ -46,10 +46,13 @@ define_function_get_pmml_string <- function(tokens, function_name) {
 
   # names of variables that are in the local scope of this function
   function_scope_variables <- c(function_param_name_tokens$text)
+  function_local_variables <- c()
   for(i in 1:nrow(top_level_function_body_expr_tokens)) {
     if(i != nrow(top_level_function_body_expr_tokens)) {
       inner_func_expr <- top_level_function_body_expr_tokens[i, ]
       inner_func_name <- define_function_get_inner_func_name(inner_func_expr, tokens, function_name)
+      var_name <- util_get_var_and_func_names(get_descendants_of_token(inner_func_expr, tokens))[1]
+      function_local_variables <- c(function_local_variables, var_name)
       pmml_function_string <- paste(
         pmml_function_string,
         get_pmml_string_for_expr_token_within_function(
@@ -125,11 +128,13 @@ define_function_get_pmml_string <- function(tokens, function_name) {
             pmml_string_for_r_code,
             pmml_string_for_return_arg_expr_token
           )
-          pmml_string_for_return_arg_expr_token <- gsub(
-            glue::glue('<TableLocator location="taxonomy" name="{symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text}" />'),
-            glue::glue('<TableLocator>{pmml_string_for_r_code}</TableLocator>'),
-            pmml_string_for_return_arg_expr_token
-          )
+          if(symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text %in% function_local_variables) {
+            pmml_string_for_return_arg_expr_token <- gsub(
+              glue::glue('<TableLocator location="taxonomy" name="{symbols_within_return_arg_expr_which_are_not_function_arguments[j, ]$text}" />'),
+              glue::glue('<TableLocator>{pmml_string_for_r_code}</TableLocator>'),
+              pmml_string_for_return_arg_expr_token
+            )
+          }
         }
       }
 
