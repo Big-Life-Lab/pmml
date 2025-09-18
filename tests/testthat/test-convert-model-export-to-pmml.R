@@ -416,3 +416,136 @@ test_that("Correctly converts copy value for categorical non-derived
     prettify_xml(expected_pmml)
   )
 })
+
+test_that("Correctly converts logistic regression", {
+  model_exports_file <- data.frame(
+    fileType = c("variables", "variable-details", "model-steps"),
+    filePath = c("./variables.csv", "./variable-details.csv", "./model-steps.csv")
+  )  
+  variables_file <- data.frame(
+    variable = c("Age", "Sex"),
+    label = c("age", "sex"),
+    labelLong = c("age", "sex"),
+    section = c("Demographics", "Demographics"), 
+    subject = c("Demographics", "Demographics"),
+    variableType = c("Continuous", "Categorical"),
+    units = c("years", "N/A"), 
+    databaseStart = c("limesurvey", "limesurvey"),
+    variableStart = c("limesurvey::age", "limesurvey::sex"),
+    description = c("", "")
+  )
+  variable_details_file <- data.frame(
+    variable = c("Age", "Sex"),
+    dummyVariable = c("N/A", "N/A"),
+    typeEnd = c("cont", "cat"),
+    databaseStart = c("limesurvey", "limesurvey"),
+    variableStart = c("limesurvey::age", "limesurvey::sex"),
+    typeStart = c("cont", "cat"),
+    recEnd = c("copy", "copy"),
+    numValidCat = c("N/A", "2"),
+    catLabel = c("N/A", "N/A"),
+    catLabelLong = c("N/A", "N/A"),
+    recStart = c("else", "else"),
+    catStartLabel = c("N/A", "N/A"),
+    variableStartShortLabel = c("age", "sex"),
+    variableStartLabel = c("age", "sex"),
+    units = c("years", "N/A")
+  )
+  model_steps_file <- data.frame(
+    step = c("dummy", "logistic-regression"),
+    fileType = c("N/A", "N/A"),
+    filePath = c("./dummy.csv", "./logistic-regression.csv"),
+    notes = c("", "")
+  )
+  dummy_step_file <- data.frame(
+    origVariable = c("sex", "sex"),
+    catValue = c(1, 2),
+    dummyVariable = c("sex_cat1", "sex_cat2")
+  )
+  logistic_regression_step_file <- data.frame(
+    variable = c("Intercept", "age", "sex_cat1", "sex_cat2"),
+    coefficient = c("1", "2", "3", "4"),
+    type = c("cont", "cont", "cat", "cat")
+  )
+
+  test_dir <- tempdir()
+  write.csv(model_exports_file, file.path(test_dir, "/model-export.csv"))
+  write.csv(variables_file, file.path(test_dir, "/variables.csv"))
+  write.csv(variable_details_file, file.path(test_dir, "/variable-details.csv"))
+  write.csv(model_steps_file, file.path(test_dir, "/model-steps.csv"))
+  write.csv(dummy_step_file, file.path(test_dir, "/dummy.csv"))
+  write.csv(logistic_regression_step_file, file.path(test_dir, "/logistic-regression.csv"))
+
+  actual_pmml <- convert_model_export_to_pmml(
+    test_dir,
+    file.path(test_dir, "/model-export.csv"),
+    database_name = "limesurvey",
+    custom_function_files = c()
+  )
+  
+  expected_pmml <- "<PMML version=\"4.4\"
+    xmlns=\"http://www.dmg.org/PMML-4_4\"
+    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">
+    <DataDictionary numberOfFields=\"2\">
+      <DataField name=\"age\" displayName=\"age\" optype=\"continuous\" dataType=\"float\">
+        <Extension name=\"variableStartLabel\" value=\"age\"/>
+      </DataField>
+      <DataField name=\"sex\" displayName=\"sex\" optype=\"categorical\" dataType=\"string\">
+        <Extension name=\"variableStartLabel\" value=\"sex\"/>
+      </DataField>
+    </DataDictionary>
+    <TransformationDictionary>
+      <DerivedField name=\"Age\" displayName=\"age\" optype=\"continuous\" dataType=\"float\">
+        <Extension name=\"labelLong\" value=\"age\"/>
+        <Extension name=\"units\" value=\"years\"/>
+        <FieldRef field=\"age\"/>
+      </DerivedField>
+      <DerivedField name=\"Sex\" displayName=\"sex\" optype=\"categorical\" dataType=\"string\">
+        <Extension name=\"labelLong\" value=\"sex\"/>
+        <Extension name=\"units\" value=\"N/A\"/>
+        <FieldRef field=\"sex\"/>
+      </DerivedField>
+      <DerivedField name=\"sex_cat1\" optype=\"categorical\" dataType=\"float\">
+        <Apply function=\"if\">
+          <Apply function=\"equal\">
+            <FieldRef field=\"sex\"/>
+            <Constant dataType=\"float\">1</Constant>
+          </Apply>
+          <Constant dataType=\"float\">1</Constant>
+          <Constant dataType=\"float\">0</Constant>
+        </Apply>
+      </DerivedField>
+      <DerivedField name=\"sex_cat2\" optype=\"categorical\" dataType=\"float\">
+        <Apply function=\"if\">
+          <Apply function=\"equal\">
+            <FieldRef field=\"sex\"/>
+            <Constant dataType=\"float\">2</Constant>
+          </Apply>
+          <Constant dataType=\"float\">1</Constant>
+          <Constant dataType=\"float\">0</Constant>
+        </Apply>
+      </DerivedField>
+    </TransformationDictionary>
+    <Header>
+      <Application name=\"pmml\" version=\"1.0.2\"/>
+    </Header>
+    <RegressionModel functionName=\"regression\" normalizationMethod=\"softmax\" targetFieldName=\"y\">
+      <MiningSchema>
+        <MiningField name=\"age\"/>
+        <MiningField name=\"sex\"/>
+        <MiningField name=\"y\" usageType=\"target\"/>
+      </MiningSchema>
+      <RegressionTable targetCategory=\"yes\" intercept=\"1\">
+        <NumericPredictor name=\"age\" coefficient=\"2\"/>
+        <NumericPredictor name=\"sex_cat1\" coefficient=\"3\"/>
+        <NumericPredictor name=\"sex_cat2\" coefficient=\"4\"/>
+      </RegressionTable>
+      <RegressionTable targetCategory=\"no\" intercept=\"0\"/>
+    </RegressionModel>
+  </PMML>"
+
+  expect_equal(
+    prettify_xml(toString(actual_pmml)),
+    prettify_xml(expected_pmml)
+  )
+})

@@ -157,6 +157,11 @@ pkg.env$simple_model_name_column <- "columnName"
 pkg.env$PMML.OutputNode <- "Output"
 pkg.env$PMML.OutputFieldNode <- "OutputField"
 pkg.env$PMML.Node.Attributes.Value.dataType.string <- "string"
+pkg.env$PMML.Node.NumericPredictor <- "NumericPredictor"
+pkg.env$PMML.Node.RegressionTable <- "RegressionTable"
+pkg.env$PMML.Node.RegressionModel <- "RegressionModel"
+pkg.env$PMML.regression_function_name <- "regression"
+pkg.env$PMML.softmax_normalization_method <- "softmax"
 
 pkg.env$PMML.OutputFieldNode.attrs.name <- "name"
 pkg.env$PMML.SimpleModelNode <- "SimpleModel" 
@@ -172,3 +177,11 @@ pkg.env$columns.recFrom <- "recStart"
 pkg.env$columns.variablesDetails.typeStart <- "typeStart"
 
 pkg.env$recode.key.tables <- "tables::"
+
+pkg.env$logistic_regression_step <- "logistic-regression"
+pkg.env$logistic_regression_target_name <- "y"
+pkg.env$logistic_regression_yes_target_category <- "yes"
+pkg.env$logistic_regression_no_target_category <- "no"
+pkg.env$logistic_regression_zero_intercept <- "0"
+
+pkg.env$intercept_coefficient <- "Intercept"
