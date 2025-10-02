@@ -1,1 +1,2 @@
-﻿step,fileType,filePath
+﻿step,fileType,filePath,notes
+simple-model,N/A,./simple-model.csv,

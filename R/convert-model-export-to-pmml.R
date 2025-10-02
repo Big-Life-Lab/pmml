@@ -23,6 +23,16 @@ convert_model_export_to_pmml <-
       read.csv(model_export_file_path,
                fileEncoding = "UTF-8-BOM",
                stringsAsFactors = FALSE)
+    model_export_files_validation <- model.parameters::validate_model_parameters(model_export_file_path)
+    if(!model_export_files_validation$success) {
+      cli_abort_message <- c(
+        "Error found in model parameter files",
+        purrr::map(model_export_files_validation$errors, function(validation_message) {
+          return(c("x" = validation_message))
+        }) %>% purrr::list_c()
+      )
+      cli::cli_abort(cli_abort_message)
+    }
     
     variables_path <-
       model_export[model_export$fileType == pkg.env$ModelExportCSV.variables, pkg.env$ModelStepsCSV.filePath]

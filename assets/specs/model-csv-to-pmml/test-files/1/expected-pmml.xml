@@ -310,4 +310,8 @@
   <Header>
     <Application name="pmml" version="0.1.0"/>
   </Header>
+   <Output>
+  <OutputField name="sex"/>
+ </Output>
+ <SimpleModel/>
 </PMML>
