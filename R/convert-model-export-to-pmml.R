@@ -1,3 +1,5 @@
+library(magrittr)
+
 #' Converts the CSv files that are part of a model export into PMML
 #'
 #' @importFrom magrittr %>%
