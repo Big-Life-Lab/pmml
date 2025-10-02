@@ -474,8 +474,9 @@ create_rcs_nodes <- function(variable, rcs_variables, knots, PMML) {
   }
   # Loop over the length of the passed vectors
   for (vector_index in 1:length(variable)) {
-    variable_list <-
+    variable_list <- trimws(
       strsplit(rcs_variables[[vector_index]], pkg.env$variables.splitValue)[[1]]
+    )
     # Create the first rcs DerivedField node
     # Create a temporary Constant Array Node with n set to 5, type set to float, and values from knots
     current_knots_raw <-
