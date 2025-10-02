@@ -1,2 +1,2 @@
-﻿step,fileType,filePath
-dummy,,./dummy-step.csv
+﻿step,fileType,filePath,notes
+dummy,N/A,./dummy-step.csv,

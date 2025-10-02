@@ -7,7 +7,7 @@
         </DataField> 
     </DataDictionary> 
     <TransformationDictionary>  
-        <DerivedField name="variable_one" displayName="Variable one" optype="cont" dataType="float">   
+        <DerivedField name="variable_one" displayName="Variable one" optype="continuous" dataType="float">   
             <Extension name="labelLong" value="Variable one"/>   
             <Extension name="units" value="N/A"/>   
             <FieldRef field="variable_start_one"/>  

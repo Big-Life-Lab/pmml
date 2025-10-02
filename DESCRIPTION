@@ -8,7 +8,7 @@ Authors@R: c(
   person(given = "Yulric", family = "Sequeira",
     email = "ysequeira@ohri.ca", role = c("cre")))
 Depends:
-  R (>= 3.2),
+  R (>= 4.1),
 Imports: 
   DT (== 0.33),
   glue (== 1.7.0),

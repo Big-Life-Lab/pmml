@@ -1,2 +1,2 @@
-﻿step,fileType,filePath
-center,,./center-step.csv
+﻿step,fileType,filePath,notes
+center,N/A,./center-step.csv,

@@ -1,2 +1,2 @@
-﻿step,fileType,filePath
-rcs,,./rcs-step.csv
+﻿step,fileType,filePath,notes
+rcs,N/A,./rcs-step.csv,
