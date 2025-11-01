@@ -774,23 +774,17 @@ create_beta_coefficient_nodes <-
     current_mining_schema_node <-
       XML::addChildren(
         current_mining_schema_node,
-        XML::xmlNode(
-          pkg.env$PMML.Node.MiningField,
-          attrs = c(
-            name = "risk",
-            usageType = pkg.env$PMML.Node.Attributes.Value.usageType.target
-          )
+        .create_mining_field_node(
+          "risk",
+           pkg.env$PMML.Node.Attributes.Value.usageType.target
         )
       )
     current_mining_schema_node <-
       XML::addChildren(
         current_mining_schema_node,
-        XML::xmlNode(
-          pkg.env$PMML.Node.MiningField,
-          attrs = c(
-            name = pkg.env$variables.Time,
-            usageType = pkg.env$PMML.Node.Attributes.Value.usageType.active
-          )
+        .create_mining_field_node(
+          pkg.env$variables.Time,
+          pkg.env$PMML.Node.Attributes.Value.usageType.active
         )
       )
     # Loop over mining_fields
@@ -799,12 +793,9 @@ create_beta_coefficient_nodes <-
       current_mining_schema_node <-
         XML::addChildren(
           current_mining_schema_node,
-          XML::xmlNode(
-            pkg.env$PMML.Node.MiningField,
-            attrs = c(
-              name = mining_fields[[start_variable_index]],
-              usageType = pkg.env$PMML.Node.Attributes.Value.usageType.active
-            )
+          .create_mining_field_node(
+            mining_fields[[start_variable_index]],
+            pkg.env$PMML.Node.Attributes.Value.usageType.active
           )
         )
     }
@@ -1067,18 +1058,14 @@ node_creation_switch <-
       },
       "logistic-regression" = {
         predictor_mining_field_nodes <- purrr::map(all_start_vars, function(start_var) {
-          predictor_mining_field_node <- XML::xmlNode(
-            pkg.env$PMML.Node.MiningField,
-            attrs = c(name = start_var)
+          predictor_mining_field_node <- .create_mining_field_node(
+            start_var
           )
           return(predictor_mining_field_node)
         })
-        output_mining_field_node <- XML::xmlNode(
-          pkg.env$PMML.Node.MiningField,
-          attrs = c(
-            name = pkg.env$logistic_regression_target_name,
-            usageType = pkg.env$PMML.Node.Attributes.Value.usageType.target
-          )
+        output_mining_field_node <- .create_mining_field_node(
+          pkg.env$logistic_regression_target_name,
+          pkg.env$PMML.Node.Attributes.Value.usageType.target
         )
         mining_schema_node <- XML::xmlNode(
           pkg.env$PMML.Node.MiningSchema,
@@ -1238,3 +1225,17 @@ convert_step <-
   return(all_dbs)
 }
 
+#' Create a PMML MiningField node
+#'
+#' @param name the name attribute of the node
+#' @param usage_type the optional usageType attribute of the node
+#' @return The PMML node created using the XML package
+.create_mining_field_node <- function(name, usage_type = NULL) {
+  return(XML::xmlNode(
+    pkg.env$PMML.Node.MiningField,
+    attrs = c(
+      name = name,
+      usageType = usage_type
+    )
+  ))
+}
