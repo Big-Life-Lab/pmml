@@ -1,2 +1,2 @@
-﻿step,fileType,filePath
-interaction,,./interaction-step.csv
+﻿step,fileType,filePath,notes
+interaction,N/A,./interaction-step.csv,

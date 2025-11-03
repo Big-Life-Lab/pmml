@@ -131,3 +131,110 @@ test_that("Function with parameters and parameter closing brace on new line", {
 
   test_utils_run_generate_pmml_test(code, expected_pmml)
 })
+
+test_that("Custom functions with intermediate variables that use the dollar
+          operator to access the column are correctly parsed", {
+  code <- '
+    a <- function(table) {
+      row <- table[table$b == 1, ]
+      c <- row$c 
+      return(c)
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a(row)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues>
+          <FieldColumnPair column=\"b\" constant=\"1\"/>
+          <TableLocator location=\"local\" name=\"table\"/>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a(c)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues outputColumn=\"c\">
+          <TableLocator>
+            <Apply function=\"a(row)\">
+              <FieldRef field=\"table\"/>
+            </Apply>
+          </TableLocator>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"a(c)\">
+          <FieldRef field=\"table\"/>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
+
+test_that("Custom functions with intermediate variables that use non-wildcard
+          expressions are correctly parsed", {
+  code <- '
+    a <- function(table) {
+      row <- table
+      c <- row[row$b == 1, "c"]
+      return(c)
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"a(row)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <FieldRef field=\"table\"/>
+      </DefineFunction>
+      <DefineFunction name=\"a(c)\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <MapValues outputColumn=\"c\">
+          <FieldColumnPair column=\"index\" constant=\"\"/>
+          <TableLocator>
+            <Apply function=\"a(row)\">
+              <FieldRef field=\"table\"/>
+            </Apply>
+          </TableLocator>
+        </MapValues>
+      </DefineFunction>
+      <DefineFunction name=\"a\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"a(c)\">
+          <FieldRef field=\"table\"/>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})
+
+test_that("Custom functions that have a data frame expression within a function
+          call should be correctly parsed", {
+  code <- '
+    get_table_row_indexes <- function(table) {
+      return(which(table$a == 1))
+    }
+  '
+
+  expected_pmml <- '<PMML>
+    <LocalTransformations>
+      <DefineFunction name=\"get_table_row_indexes\">
+        <ParameterField name=\"table\" dataType=\"double\"/>
+        <Apply function=\"which\">
+          <Apply function=\"equal\">
+            <MapValues outputColumn=\"a\">
+              <TableLocator location=\"local\" name=\"table\" />
+            </MapValues>
+            <Constant dataType=\"double\">1</Constant>
+          </Apply>
+        </Apply>
+      </DefineFunction>
+    </LocalTransformations>
+  </PMML>'
+
+  test_utils_run_generate_pmml_test(code, expected_pmml)
+})

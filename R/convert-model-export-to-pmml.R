@@ -1,3 +1,5 @@
+library(magrittr)
+
 #' Converts the CSv files that are part of a model export into PMML
 #'
 #' @importFrom magrittr %>%
@@ -21,6 +23,16 @@ convert_model_export_to_pmml <-
       read.csv(model_export_file_path,
                fileEncoding = "UTF-8-BOM",
                stringsAsFactors = FALSE)
+    model_export_files_validation <- model.parameters::validate_model_parameters(model_export_file_path)
+    if(!model_export_files_validation$success) {
+      cli_abort_message <- c(
+        "Error found in model parameter files",
+        purrr::map(model_export_files_validation$errors, function(validation_message) {
+          return(c("x" = validation_message))
+        }) %>% purrr::list_c()
+      )
+      cli::cli_abort(cli_abort_message)
+    }
     
     variables_path <-
       model_export[model_export$fileType == pkg.env$ModelExportCSV.variables, pkg.env$ModelStepsCSV.filePath]
@@ -151,15 +163,13 @@ convert_model_export_to_pmml <-
     
     # Calculate max_time from variable_details recTo column
     max_time <- 0
-    # Vector containing all matching variable start variables based on database name
-    all_start_vars <- c()
-    if('fine-and-gray' %in% model_steps$step) {
+    if("fine-and-gray" %in% model_steps$step) {
       if (!pkg.env$variables.Time %in%
           variable_details[[pkg.env$argument.Variables]]) {
-        stop('Missing time variable in variable_details sheet for fine and gray model')
+        stop("Missing time variable in variable_details sheet for fine and gray model")
       }
       variable_details_time_rows <- variable_details[variable_details[[pkg.env$argument.Variables]] == pkg.env$variables.Time, ]
-      
+
       max_time <-
         max(as.character(variable_details_time_rows[[pkg.env$argument.recEnd]]))
       min_time <-
@@ -200,6 +210,13 @@ convert_model_export_to_pmml <-
             )
           )
         )
+    }
+
+    # Vector containing all matching variable start variables based on database name
+    all_start_vars <- c()
+    if("fine-and-gray" %in% model_steps$step |
+       pkg.env$logistic_regression_step %in% model_steps$step) {
+
       # Create a vector containing all variables from variableStart matching database name
       all_unique_vars <-
         unique(variable_details[grepl(database_name, variable_details[[pkg.env$argument.DatabaseStart]]), pkg.env$argument.Variables])
@@ -457,8 +474,9 @@ create_rcs_nodes <- function(variable, rcs_variables, knots, PMML) {
   }
   # Loop over the length of the passed vectors
   for (vector_index in 1:length(variable)) {
-    variable_list <-
+    variable_list <- trimws(
       strsplit(rcs_variables[[vector_index]], pkg.env$variables.splitValue)[[1]]
+    )
     # Create the first rcs DerivedField node
     # Create a temporary Constant Array Node with n set to 5, type set to float, and values from knots
     current_knots_raw <-
@@ -756,23 +774,17 @@ create_beta_coefficient_nodes <-
     current_mining_schema_node <-
       XML::addChildren(
         current_mining_schema_node,
-        XML::xmlNode(
-          pkg.env$PMML.Node.MiningField,
-          attrs = c(
-            name = "risk",
-            usageType = pkg.env$PMML.Node.Attributes.Value.usageType.target
-          )
+        .create_mining_field_node(
+          "risk",
+           pkg.env$PMML.Node.Attributes.Value.usageType.target
         )
       )
     current_mining_schema_node <-
       XML::addChildren(
         current_mining_schema_node,
-        XML::xmlNode(
-          pkg.env$PMML.Node.MiningField,
-          attrs = c(
-            name = pkg.env$variables.Time,
-            usageType = pkg.env$PMML.Node.Attributes.Value.usageType.active
-          )
+        .create_mining_field_node(
+          pkg.env$variables.Time,
+          pkg.env$PMML.Node.Attributes.Value.usageType.active
         )
       )
     # Loop over mining_fields
@@ -781,12 +793,9 @@ create_beta_coefficient_nodes <-
       current_mining_schema_node <-
         XML::addChildren(
           current_mining_schema_node,
-          XML::xmlNode(
-            pkg.env$PMML.Node.MiningField,
-            attrs = c(
-              name = mining_fields[[start_variable_index]],
-              usageType = pkg.env$PMML.Node.Attributes.Value.usageType.active
-            )
+          .create_mining_field_node(
+            mining_fields[[start_variable_index]],
+            pkg.env$PMML.Node.Attributes.Value.usageType.active
           )
         )
     }
@@ -1046,6 +1055,87 @@ node_creation_switch <-
           current_file,
           working_pmml
         )
+      },
+      "logistic-regression" = {
+        predictor_mining_field_nodes <- purrr::map(all_start_vars, function(start_var) {
+          predictor_mining_field_node <- .create_mining_field_node(
+            start_var
+          )
+          return(predictor_mining_field_node)
+        })
+        output_mining_field_node <- .create_mining_field_node(
+          pkg.env$logistic_regression_target_name,
+          pkg.env$PMML.Node.Attributes.Value.usageType.target
+        )
+        mining_schema_node <- XML::xmlNode(
+          pkg.env$PMML.Node.MiningSchema,
+          .children = c(predictor_mining_field_nodes, list(output_mining_field_node))
+        )
+       
+        intercept_variable_index <- purrr::detect_index(
+          seq_len(nrow(current_file)),
+          function(ix) {
+            file_row <- current_file[ix, ]
+            if(file_row$variable == pkg.env$intercept_coefficient) {
+              return(TRUE)
+            }
+            return(FALSE)
+          }
+        )
+        # All the predictors are converted into NumericPredictor nodes rather
+        # than a combination of NumericPredictor and CategoricalPredictor. PMML
+        # expects that the value of a categorical predictor be either 1 or 0
+        # whereas since our models are centered, they can take values between 0
+        # and 1. This incompatibility means that we cannot use
+        # CategoricalPredictor nodes for the categorical predictors.
+        numeric_predictor_nodes <- 
+          purrr::discard(seq_len(nrow(current_file)), function(ix) {
+            return(ix == intercept_variable_index)
+          }) %>%
+          purrr::map(
+            function(ix) {
+              file_row <- current_file[ix, ]
+              numeric_predictor_node <- XML::xmlNode(
+                pkg.env$PMML.Node.NumericPredictor,
+                attrs = c(
+                  name = file_row$variable,
+                  coefficient = file_row$coefficient
+                )
+              )
+              return(numeric_predictor_node)
+            }
+          )
+        regression_table_yes_node <- XML::xmlNode(
+          pkg.env$PMML.Node.RegressionTable,
+          attrs = c(
+            targetCategory = pkg.env$logistic_regression_yes_target_category,
+            intercept = if(intercept_variable_index != 0) {
+              current_file[intercept_variable_index, ]$coefficient
+            } else {
+              pkg.env$logistic_regression_zero_intercept
+            } 
+          ),
+          .children = numeric_predictor_nodes
+        )
+
+        regression_table_no_node <- XML::xmlNode(
+          pkg.env$PMML.Node.RegressionTable,
+          attrs = c(
+            targetCategory = pkg.env$logistic_regression_no_target_category,
+            intercept = pkg.env$logistic_regression_zero_intercept
+          )
+        )
+
+        regression_model_node <- XML::xmlNode(
+          pkg.env$PMML.Node.RegressionModel,
+          attrs = c(
+            functionName = pkg.env$PMML.regression_function_name,
+            normalizationMethod = pkg.env$PMML.softmax_normalization_method,
+            targetFieldName = pkg.env$logistic_regression_target_name
+          ),
+          .children = list(mining_schema_node, regression_table_yes_node, regression_table_no_node)
+        )
+        working_pmml <- XML::addChildren(working_pmml, regression_model_node)
       }
     )
     
@@ -1135,3 +1225,17 @@ convert_step <-
   return(all_dbs)
 }
 
+#' Create a PMML MiningField node
+#'
+#' @param name the name attribute of the node
+#' @param usage_type the optional usageType attribute of the node
+#' @return The PMML node created using the XML package
+.create_mining_field_node <- function(name, usage_type = NULL) {
+  return(XML::xmlNode(
+    pkg.env$PMML.Node.MiningField,
+    attrs = c(
+      name = name,
+      usageType = usage_type
+    )
+  ))
+}
