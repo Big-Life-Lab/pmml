@@ -13,7 +13,7 @@ Imports:
   DT (== 0.33),
   glue (== 1.7.0),
   XML (== 3.99-0.16.1),
-  magrittr (== 2.0.3),
+  magrittr (== 2.0.4),
   purrr (== 1.0.4)
 Suggests:
   devtools (== 2.4.5)
