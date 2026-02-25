@@ -179,7 +179,6 @@ pkg.env$columns.variablesDetails.typeStart <- "typeStart"
 pkg.env$recode.key.tables <- "tables::"
 
 pkg.env$logistic_regression_step <- "logistic-regression"
-pkg.env$logistic_regression_target_name <- "y"
 pkg.env$logistic_regression_yes_target_category <- "yes"
 pkg.env$logistic_regression_no_target_category <- "no"
 pkg.env$logistic_regression_zero_intercept <- "0"

@@ -1064,7 +1064,7 @@ node_creation_switch <-
           return(predictor_mining_field_node)
         })
         output_mining_field_node <- .create_mining_field_node(
-          pkg.env$logistic_regression_target_name,
+          pkg.env$logistic_regression_yes_target_category,
           pkg.env$PMML.Node.Attributes.Value.usageType.target
         )
         mining_schema_node <- XML::xmlNode(
@@ -1131,7 +1131,7 @@ node_creation_switch <-
           attrs = c(
             functionName = pkg.env$PMML.regression_function_name,
             normalizationMethod = pkg.env$PMML.softmax_normalization_method,
-            targetFieldName = pkg.env$logistic_regression_target_name
+            targetFieldName = pkg.env$logistic_regression_yes_target_category
           ),
           .children = list(mining_schema_node, regression_table_yes_node, regression_table_no_node)
         )

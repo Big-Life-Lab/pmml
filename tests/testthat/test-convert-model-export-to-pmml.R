@@ -658,11 +658,11 @@ test_that("Correctly converts logistic regression", {
     <Header>
       <Application name=\"pmml\" version=\"0.1.0\"/>
     </Header>
-    <RegressionModel functionName=\"regression\" normalizationMethod=\"softmax\" targetFieldName=\"y\">
+    <RegressionModel functionName=\"regression\" normalizationMethod=\"softmax\" targetFieldName=\"yes\">
       <MiningSchema>
         <MiningField name=\"age\"/>
         <MiningField name=\"sex\"/>
-        <MiningField name=\"y\" usageType=\"target\"/>
+        <MiningField name=\"yes\" usageType=\"target\"/>
       </MiningSchema>
       <RegressionTable targetCategory=\"yes\" intercept=\"1\">
         <NumericPredictor name=\"age\" coefficient=\"2\"/>
