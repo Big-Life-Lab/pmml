@@ -7,6 +7,12 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.1] - 2026-02-25
+
+### Fixed
+
+* [Fix bug with converting logistic regression models due to target mismatch](https://github.com/Big-Life-Lab/pmml/commit/88a16c01e2883e4953010a9c48ff5674cc886fe6)
+
 ## [v1.1.0] - 2025-11-03
 
 ### Added
