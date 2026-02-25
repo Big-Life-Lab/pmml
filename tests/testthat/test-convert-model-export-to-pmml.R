@@ -439,6 +439,10 @@ test_that("When no variables are found for the specified database name,
 
 test_that("Correctly converts copy value for categorical non-derived
           variables", {
+  local_mocked_bindings(
+    packageVersion = function(package_name) return('0.1.0'),
+    .package = 'utils'
+  )
   model_exports_file <- data.frame(
     fileType = c('variables', 'model-steps', 'variable-details'),
     filePath = c('./variables.csv', './model-steps.csv', './variable-details.csv')
@@ -524,7 +528,7 @@ test_that("Correctly converts copy value for categorical non-derived
       </DerivedField>
     </TransformationDictionary>
     <Header>
-      <Application name="pmml" version="1.0.2"/>
+      <Application name="pmml" version="0.1.0"/>
     </Header>
     <Output>
       <OutputField name="test"/>
@@ -539,6 +543,10 @@ test_that("Correctly converts copy value for categorical non-derived
 })
 
 test_that("Correctly converts logistic regression", {
+  local_mocked_bindings(
+    packageVersion = function(package_name) return('0.1.0'),
+    .package = 'utils'
+  )
   model_exports_file <- data.frame(
     fileType = c("variables", "variable-details", "model-steps"),
     filePath = c("./variables.csv", "./variable-details.csv", "./model-steps.csv")
@@ -648,7 +656,7 @@ test_that("Correctly converts logistic regression", {
       </DerivedField>
     </TransformationDictionary>
     <Header>
-      <Application name=\"pmml\" version=\"1.0.2\"/>
+      <Application name=\"pmml\" version=\"0.1.0\"/>
     </Header>
     <RegressionModel functionName=\"regression\" normalizationMethod=\"softmax\" targetFieldName=\"y\">
       <MiningSchema>
